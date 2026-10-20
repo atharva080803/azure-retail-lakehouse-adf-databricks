@@ -1,0 +1,42 @@
+{
+    "name": "ds_json_config",
+    "properties": {
+        "linkedServiceName": {
+            "referenceName": "ls_adls_retail",
+            "type": "LinkedServiceReference"
+        },
+        "annotations": [],
+        "type": "Json",
+        "typeProperties": {
+            "location": {
+                "type": "AzureBlobFSLocation",
+                "fileName": "pipeline_config.json",
+                "fileSystem": "config"
+            }
+        },
+        "schema": {
+            "type": "object",
+            "properties": {
+                "source_container": {
+                    "type": "string"
+                },
+                "source_folder": {
+                    "type": "string"
+                },
+                "source_file": {
+                    "type": "string"
+                },
+                "sink_container": {
+                    "type": "string"
+                },
+                "sink_folder": {
+                    "type": "string"
+                },
+                "sink_file": {
+                    "type": "string"
+                }
+            }
+        }
+    },
+    "type": "Microsoft.DataFactory/factories/datasets"
+}
