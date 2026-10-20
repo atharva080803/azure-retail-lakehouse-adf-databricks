@@ -8,26 +8,28 @@ I built this project to get hands-on with Azure Data Factory and Databricks usin
 CSV files (landing)  ->  ADF  ->  Bronze  ->  Silver (Databricks)  ->  Gold (Databricks)
 ```
 
+!\[Architecture](docs/architecture.png)
+
 ## Data
 
-| File | What it is | Rows |
-|---|---|---|
-| customers.csv | Customer details (name, address, city, state, pincode) | 12,435 |
-| orders_new.csv | Historical orders | 68,883 |
-| orders.csv | A small new batch of orders | 4 |
+|File|What it is|Rows|
+|-|-|-|
+|customers.csv|Customer details (name, address, city, state, pincode)|12,435|
+|orders\_new.csv|Historical orders|68,883|
+|orders.csv|A small new batch of orders|4|
 
 I have not uploaded the raw files here because the customers file has usernames and passwords in it.
 
 ## What I used
 
-- Azure Data Factory
-- ADLS Gen2 with separate containers for landing, bronze, silver, gold and config
-- Azure Databricks (PySpark, Delta Lake)
-- Azure Key Vault and managed identity for access
+* Azure Data Factory
+* ADLS Gen2 with separate containers for landing, bronze, silver, gold and config
+* Azure Databricks (PySpark, Delta Lake)
+* Azure Key Vault and managed identity for access
 
 ## How it works
 
-**Ingestion.** Instead of making one pipeline per file, I kept a small `pipeline_config.json` that lists each source and where it should go. The pipeline `pl_ingest_bronze` reads that file with a Lookup activity, loops over it with ForEach, and runs a Copy activity for each entry using parameterized datasets. To add a new file, I only add a row to the config.
+**Ingestion.** Instead of making one pipeline per file, I kept a small `pipeline\_config.json` that lists each source and where it should go. The pipeline `pl\_ingest\_bronze` reads that file with a Lookup activity, loops over it with ForEach, and runs a Copy activity for each entry using parameterized datasets. To add a new file, I only add a row to the config.
 
 **Access.** Data Factory reads and writes storage through its managed identity, so no storage keys are used anywhere. The Databricks token is kept in Key Vault and the linked service reads it from there.
 
@@ -35,17 +37,20 @@ I have not uploaded the raw files here because the customers file has usernames 
 
 **Gold.** From silver I built a few tables meant for reporting: daily orders by status, an order status breakdown with percentages, orders by state, a customer segmentation based on how recently and how often each customer ordered, and a list of the top customers.
 
+!\[Ingestion pipeline](docs/pl\_ingest\_bronze.png)
+
 ## Repo layout
 
 ```
 adf/pipelines/         exported pipeline JSON
 adf/datasets/          exported dataset JSON
 databricks/notebooks/  silver, SCD2 and gold notebooks
-config/                pipeline_config.json
+config/                pipeline\_config.json
 docs/                  screenshots
 ```
 
 ## Notes
 
-- The dataset has no price or amount column, so the customer segmentation uses recency and frequency only, with no revenue.
-- I also set up a master pipeline in ADF to run the notebooks after ingestion. I am still sorting out the Databricks compute side of that, so the notebooks are currently run from Databricks directly.
+* The dataset has no price or amount column, so the customer segmentation uses recency and frequency only, with no revenue.
+* I also set up a master pipeline in ADF to run the notebooks after ingestion. I am still sorting out the Databricks compute side of that, so the notebooks are currently run from Databricks directly.
+
